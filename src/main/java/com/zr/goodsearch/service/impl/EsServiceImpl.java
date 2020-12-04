@@ -4,12 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.zr.goodsearch.entity.GoodSearchResponseVo;
 import com.zr.goodsearch.entity.GoodsInEsEntity;
 import com.zr.goodsearch.service.EsService;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -82,5 +86,24 @@ public class EsServiceImpl implements EsService {
         goodSearchResponseVo.setData(list);
         goodSearchResponseVo.setTotal(searchResponse.getHits().getTotalHits().value);
         return goodSearchResponseVo;
+    }
+
+    @Override
+    public String sysncGoods(List<GoodsInEsEntity> list) {
+        BulkRequest request = new BulkRequest();
+        request.timeout("10s");
+        // 批处理请求， 修改，删除，只要在这里修改相应的请求就可以
+        for (int i = 0; i < list.size(); i++) {
+            request.add(new IndexRequest("goods")
+                    .source(JSON.toJSONString(list.get(i)), XContentType.JSON));
+        }
+        BulkResponse bulkResponse = null;
+        try {
+            bulkResponse = client.bulk(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //是否失败，返回false表示成功
+        return bulkResponse.hasFailures() + "";
     }
 }

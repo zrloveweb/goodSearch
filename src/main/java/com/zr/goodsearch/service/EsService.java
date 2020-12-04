@@ -11,4 +11,6 @@ import java.util.Map;
 public interface EsService {
 
    GoodSearchResponseVo findGoodsAndHeightRed(String goodsType, int pageNo, int pageSize) throws IOException;
+
+   String sysncGoods(List<GoodsInEsEntity> list);
 }

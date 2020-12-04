@@ -12,13 +12,13 @@ import java.util.List;
 
 public class ParseHtml {
 
-    public static List<GoodsInEsEntity> getListGoods() {
+    public static List<GoodsInEsEntity> getListGoods(String keyword,int page) {
         //从URL加载HTML
         Document document = null;
         List<GoodsInEsEntity> listGoodsEs = new ArrayList<GoodsInEsEntity>();
 
         try {
-            document = Jsoup.connect("https://search.jd.com/Search?keyword=mysql&enc=utf-8&wq=mysql").get();
+            document = Jsoup.connect("https://search.jd.com/Search?keyword="+keyword+"&page="+page).get();
             Element goodsList = document.getElementById("J_goodsList");
             Elements ulBook = goodsList.getElementsByClass("gl-warp clearfix");
             Element firstUlBook = ulBook.get(0);
